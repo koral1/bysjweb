@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>go</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/gojs/2.2.7/go-debug.js"></script>
+    <style>
+      #myDiagramDiv{
+    border: 1px solid black;
+    width: 600px;
+    height: 400px;
+    position: relative;
+    cursor: auto;
+    margin:auto;
+    margin-top:60px;
+    }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <select id="selectNode">
+            <option value="vethpair">vethpair</option>
+            <option value="netns">netns</option>
+            <option value="bridge">bridge</option>
+            <option value="vxlan">vxlan</option>
+        </select>
+        <input type="text" placeholder="添加设备名" id="inputCreate">
+        <input type="text" placeholder="添加设备名" id="inputCreatevethp">
+        <button id="createDevice">添加设备</button>
+        <br/>
+        <input type="text" placeholder="请输入连接设备名" id="inputConnect1">
+        <input type="text" placeholder="请输入连接设备名" id="inputConnect2">
+        <button id="connectDevice">连接设备</button>
+        <br/>
+        <input type="text" placeholder="请输入设置ip设备名" id="inputAddIp">
+        <input type="text" placeholder="请输入ip地址" id="inputIp">
+        <button id="addIp">设置ip</button>
+        <br/>
+        <input type="text" placeholder="启动设备名" id="inputSetUp">
+        <button id="setUpDevice">启动设备</button>
+        <br/>
+        <input type="text" placeholder="删除设备名" id="inputDelete">
+        <button id="deleteDevice">删除设备</button>
+        <br/>
+        <button id="forwardAccept">开启转发相关配置</button>
+        <input type="text" placeholder="请输入配置路由的设备名" id="inputRoute">
+        <button id="setRoute">配置路由</button>
+        <input type="text" placeholder="请输入bridge名" id="inputDNATbr">
+        <input type="text" placeholder="请输入网段" id="inputLAN">
+        <button id="setDNAT">配置DNAT规则</button>
+        <input type="text" placeholder="请输入bridge名" id="inputSNATbr">
+        <input type="text" placeholder="请输入netns名" id="inputSNATnetns">
+        <button id="setSNAT">配置SNAT规则</button>
+        <br/>
+        <input type="text" placeholder="请输入netns名" id="inputServernetns">
+        <button id="openServer">启动一个server</button>
+        <input type="text" id="inputPing">
+        <button id="ping">ping</button>
+
+    </div>
+    <div id="myDiagramDiv">
+    </div>
+
+
+
+ <script>
+    var nodeDataArray=[
+    {"key":"1", "text":"Switch 23", "type":"S2", "loc":"195 225"},
+    {"key":"2", "text":"Machine 17", "type":"M4", "loc":"183.5 94"},
+    {"key":"3", "text":"Panel 7", "type":"P2", "loc":"75 211.5"},
+    {"key":"4", "text":"Switch 24", "type":"S3", "loc":"306 225"},
+    {"key":"5", "text":"Machine 18", "type":"M5", "loc":"288.5 95"},
+    {"key":"6", "text":"Panel 9", "type":"P1", "loc":"426 211"},
+    {"key":"7", "text":"Instr 3", "type":"I1", "loc":"-50 218"} ];
+
+  var linkDataArray=[
+    {"from":"1", "to":"2"},
+    {"from":"1", "to":"3"},
+    {"from":"1", "to":"4"},
+    {"from":"4", "to":"5"},
+    {"from":"4", "to":"6"},
+    {"from":"7", "to":"2"},
+    {"from":"7", "to":"3"}
+    ];
+
+    {
+    const selectNode=document.getElementById("selectNode");
+    const inputCreate=document.getElementById("inputCreate");
+    const inputCreate=document.getElementById("inputCreate");
+    const createDevice=document.getElementById("createDevice");
+
+    const inputConnect1=document.getElementById("inputConnect1");
+    const inputConnect2=document.getElementById("inputConnect2");
+    const connectDevice=document.getElementById("connectDevice");
+
+    const inputAddIp=document.getElementById("inputAddIp");
+    const inputIp=document.getElementById("inputIp");
+    const addIp=document.getElementById("addIp");
+
+    const inputSetUp=document.getElementById("inputSetUp");
+    const setUpDevice=document.getElementById("setUpDevice");
+
+    const inputDelete=document.getElementById("inputDelete");
+    const deleteDevice=document.getElementById("deleteDevice");
+
+    const forwardAccept=document.getElementById("forwardAccept");
+
+    const setRoute=document.getElementById("setRoute");
+    const inputRoute=document.getElementById("inputRoute");
+
+    const inputDNATbr=document.getElementById("inputDNATbr");
+    const inputLAN=document.getElementById("inputLAN");
+    const setDNAT=document.getElementById("setDNAT");
+
+    const inputSNATbr=document.getElementById("inputSNATbr");
+    const inputSNATnetns=document.getElementById("inputSNATnetns");
+    const setSNAT=document.getElementById("setSNAT");
+
+    const inputServernetns=document.getElementById("inputServernetns");
+    const openServer=document.getElementById("openServer");
+
+    const inputPing=document.getElementById("inputPing");
+    const ping=document.getElementById("ping");
+    }
+
+    createDevice.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/create");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({type:selectNode.value,name:inputCreate.value}));
+            console.log({type:selectNode.value,name:inputCreate.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("成功创建设备！")
+                    }
+                }
+            }
+    }
+
+    connectDevice.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/connect");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name1:inputConnect1.value,name2:inputConnect2.value}));
+            console.log({name1:inputConnect1.value,name2:inputConnect2.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("成功连接设备！")
+                    }
+                }
+            }
+    }
+
+    addIp.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/addip");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputAddIp.value,ip:inputIp.value}));
+            console.log({name:inputAddIp.value,ip:inputIp.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("成功设置ip！")
+                    }
+                }
+            }
+    }
+
+    setUpDevice.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/setup");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputSetUp.value}));
+            console.log({name:inputSetUp.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("设备已启动！")
+                    }
+                }
+            }
+    }
+
+    deleteDevice.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/delete");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputDelete.value}));
+            console.log({name:inputDelete.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("设备已删除！")
+                    }
+                }
+            }
+    }
+
+    forwardAccept.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/openforward");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send("ok");
+            console.log("ok");
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("转发相关设置已开启！")
+                    }
+                }
+            }
+    }
+
+    setRoute.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/setroute");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputRoute.value}));
+            console.log(JSON.stringify({name:inputRoute.value}));
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("路由配置成功！")
+                    }
+                }
+            }
+    }
+
+    setDNAT.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/dnat");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputDNATbr.value,ip:inputLAN.value}));
+            console.log({name:inputDNATbr.value,ip:inputLAN.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("成功设置DNAT！")
+                    }
+                }
+            }
+    }
+
+    setSNAT.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/snat");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name1:inputSNATbr.value,name2:inputSNATnetns.value}));
+            console.log({name1:inputSNATbr.value,name2:inputSNATnetns.value});
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("成功设置SNAT！")
+                    }
+                }
+            }
+    }
+
+    openServer.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/openserver");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputServernetns.value}));
+            console.log(JSON.stringify({name:inputServernetns.value}));
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("启动server成功！")
+                    }
+                }
+            }
+    }
+
+    ping.onclick=()=>{
+      const xhr=new XMLHttpRequest();
+      xhr.open("POST","http://127.0.0.1:5000/server/ping");
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            xhr.send(JSON.stringify({name:inputPing.value}));
+            console.log(JSON.stringify({name:inputPing.value}));
+            xhr.onreadystatechange=()=>{
+                if(xhr.readyState===4)
+                {
+                    if(xhr.status>=200&&xhr.status<300)
+                    {
+                       console.log("ping成功了！")
+                    }
+                }
+            }
+    }
+
+  function init() {
+    if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+    var $ = go.GraphObject.make;  // for conciseness in defining templates
+    myDiagram =
+      $(go.Diagram, "myDiagramDiv");
+    // conversion functions for Bindings in the Node template:
+    function nodeTypeImage(type) {
+      switch (type) {                                         // Image sizes
+        case "S2": return "https://gojs.net.cn/images/samples/voice atm switch.jpg";      // 55x55
+        case "S3": return "https://gojs.net.cn/images/samples/server switch.jpg";         // 55x55
+        case "P1": return "https://gojs.net.cn/images/samples/general processor.jpg";     // 60x85
+        case "P2": return "https://gojs.net.cn/images/samples/storage array.jpg";         // 55x80
+        case "M4": return "https://gojs.net.cn/images/samples/iptv broadcast server.jpg"; // 80x50
+        case "M5": return "https://gojs.net.cn/images/samples/content engine.jpg";        // 90x65
+        case "I1": return "https://gojs.net.cn/images/samples/pc.jpg";                    // 80x70
+        default: return "https://gojs.net.cn/images/samples/pc.jpg";                      // 80x70
+      }
+    }
+    function nodeTypeSize(type) {
+      switch (type) {
+        case "S2": return new go.Size(55, 55);
+        case "S3": return new go.Size(55, 55);
+        case "P1": return new go.Size(60, 85);
+        case "P2": return new go.Size(55, 80);
+        case "M4": return new go.Size(80, 50);
+        case "M5": return new go.Size(90, 65);
+        case "I1": return new go.Size(80, 70);
+        default: return new go.Size(70, 70);
+      }
+    }
+    function nodeProblemConverter(msg) {
+      if (msg) return "red";
+      return null;
+    }
+    function nodeOperationConverter(s) {
+      if (s >= 2) return "TriangleDown";
+      if (s >= 1) return "Rectangle";
+      return "Circle";
+    }
+    function nodeStatusConverter(s) {
+      if (s >= 2) return "red";
+      if (s >= 1) return "yellow";
+      return "green";
+    }
+    myDiagram.nodeTemplate =
+      $(go.Node, "Vertical",
+        { locationObjectName: "ICON" },
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Panel, "Spot",
+        $(go.Panel, "Auto",
+          { name: "ICON" },
+          $(go.Shape,
+          { fill: null, stroke: null },
+          new go.Binding("background", "problem", nodeProblemConverter),
+          new go.AnimationTrigger('background')),
+          $(go.Picture,
+          { margin: 5 },
+          new go.Binding("source", "type", nodeTypeImage),
+          new go.Binding("desiredSize", "type", nodeTypeSize))
+         ),  // end Auto Panel
+        $(go.Shape, "Circle",
+          {
+      alignment: go.Spot.TopLeft, alignmentFocus: go.Spot.TopLeft,
+      width: 12, height: 12, fill: "orange"
+    },
+          new go.Binding("figure", "operation", nodeOperationConverter)),
+        $(go.Shape, "Triangle",
+          {
+      alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopRight,
+      width: 12, height: 12, fill: "blue"
+    },
+          new go.Binding("fill", "status", nodeStatusConverter),
+          new go.AnimationTrigger('fill'))
+         ),  // end Spot Panel
+        $(go.TextBlock,
+        new go.Binding("text"))
+       );  // end Node
+
+
+    // conversion function for Bindings in the Link template:
+    function linkProblemConverter(msg) {
+      if (msg) return "red";
+      return "gray";
+    }
+    myDiagram.linkTemplate =
+      $(go.Link, go.Link.AvoidsNodes,
+        { corner: 3 },
+        $(go.Shape,
+        { strokeWidth: 2, stroke: "gray" },
+        new go.Binding("stroke", "problem", linkProblemConverter),
+        new go.AnimationTrigger('stroke'))
+       );
+    load();
+    // simulate some real-time problem monitoring, once every two seconds:
+  }
+  function load() {
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+  };
+  if(window.init) {init();}
+ </script>
+</body>
+</html>
