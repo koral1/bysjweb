@@ -246,7 +246,7 @@
       const xhr=new XMLHttpRequest();
       xhr.open("POST","http://47.110.233.28:5000/server/openforward");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
-            xhr.send("ok");
+            xhr.send("");
             console.log("ok");
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
