@@ -26,8 +26,11 @@
             <option value="bridge">bridge</option>
             <option value="vxlan">vxlan</option>
         </select>
-        <input type="text" placeholder="添加设备名" id="inputCreate">
-        <input type="text" placeholder="添加设备名" id="inputCreatevethp">
+        <input type="text" placeholder="添加设备名" id="inputCreate1">
+        <input type="text" placeholder="添加设备名" id="inputCreate2">
+        <input type="hidden" placeholder="添加本地ip地址" id="inputCreate3">
+        <input type="hidden" placeholder="本地设备名" id="inputCreate4">
+        <input type="text" placeholder="图中坐标" id="inputLocation">
         <button id="createDevice">添加设备</button>
         <br/>
         <input type="text" placeholder="请输入连接设备名" id="inputConnect1">
@@ -87,8 +90,11 @@
 
     {
     const selectNode=document.getElementById("selectNode");
-    const inputCreate=document.getElementById("inputCreate");
-    const inputCreate=document.getElementById("inputCreate");
+    const inputCreate1=document.getElementById("inputCreate1");
+    const inputCreate2=document.getElementById("inputCreate2");
+    const inputCreate3=document.getElementById("inputCreate3");
+    const inputCreate4=document.getElementById("inputCreate4");
+    const inputLocation=document.getElementById("inputLocation");
     const createDevice=document.getElementById("createDevice");
 
     const inputConnect1=document.getElementById("inputConnect1");
@@ -125,12 +131,37 @@
     const ping=document.getElementById("ping");
     }
 
+    selectNode.onchange=()=>{
+      if(selectNode.value==="vethpair")
+      {inputCreate2.type="text";
+      inputCreate2.placeholder="添加设备名";
+       inputCreate3.type="hidden";
+        inputCreate3.value="";
+        inputCreate4.type="hidden";
+        inputCreate4.value="";
+      }
+      else if(selectNode.value==="vxlan")
+      { inputCreate2.type="text";
+        inputCreate3.type="text";
+        inputCreate4.type="text";
+        inputCreate2.placeholder="添加多播ip";
+      }
+      else
+      {
+        inputCreate2.type="hidden";
+        inputCreate2.value="";
+        inputCreate3.type="hidden";
+        inputCreate3.value="";
+        inputCreate4.type="hidden";
+        inputCreate4.value="";
+      }
+    }
     createDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
       xhr.open("POST","http://127.0.0.1:5000/server/create");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
-            xhr.send(JSON.stringify({type:selectNode.value,name:inputCreate.value}));
-            console.log({type:selectNode.value,name:inputCreate.value});
+            xhr.send(JSON.stringify({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)}));
+            console.log({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)});
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {

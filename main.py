@@ -212,21 +212,17 @@ def addip():#调试，结果都对
     index=DeviceNameList.index(Device)
     if DeviceList[index].gettype()!="veth":
         DeviceList[index].addip(ip)
-        # os.system("sh shell/net/AddIP.sh "+Device+" "+ip)
     elif DeviceList[index].gettype()=="veth":
         ConnectedDevice=DeviceList[index].getconnectdevice()
         if ConnectedDevice=="":
             DeviceList[index].addipVeth(ip)
-            # os.system("sh shell/net/AddIP.sh "+Device+" "+ip)
         else :
             indexConnected=DeviceNameList.index(ConnectedDevice)
             ConnectedType=DeviceList[indexConnected].gettype()
             if ConnectedType=="netns":
                 DeviceList[index].addipVethNetns(ip,ConnectedDevice)
-                # os.system("sh shell/net/AddIP.sh "+Device+" "+ip+" "+ConnectedDevice) 
             else:
                 DeviceList[index].addipVeth(ip)
-                # os.system("sh shell/net/AddIP.sh "+Device+" "+ip)
             
 
 def setup():#未调试

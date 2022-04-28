@@ -11,6 +11,19 @@ from entity.Vxlan import Vxlan
 
 app = Flask(__name__, static_url_path="/")
 
+def deleteVeth(Device, index):
+    if Device in VethFrontList:
+        del DeviceList[index]
+        del DeviceList[index]
+        del DeviceNameList[index]
+        del DeviceNameList[index]
+        VethFrontList.remove(Device)
+    else:
+        VethFrontList.remove(DeviceNameList[index - 1])
+        del DeviceList[index - 1]
+        del DeviceList[index - 1]
+        del DeviceNameList[index - 1]
+        del DeviceNameList[index - 1]
 
 @app.route("/server/create", methods=['GET', 'POST'])
 def create():
@@ -19,8 +32,7 @@ def create():
         json_data =json.loads(data.decode("utf-8"))
         type=json_data.get("type")
         name=json_data.get("name1")
-        print(type+" "+name)
-        if type == 'vethpiar':
+        if type == "vethpair":
             vethname = name  # 输入
             vethpeername = json_data.get("name2")  # 输入
             DeviceNameList.append(vethname)
@@ -30,136 +42,221 @@ def create():
             DeviceList.append(Veth(vethpeername, vethname))
             indexVeth = DeviceNameList.index(vethname)
             DeviceList[indexVeth].create()
-        elif type == 'netns':
-            print("请输入需要添加的netns设备的名称")
-            netnsname = input()
+            print("veth")
+        elif type == "netns":
+            netnsname = name
             DeviceNameList.append(netnsname)
             DeviceList.append(Netns(netnsname))
-        elif type == 'bridge':
-            print("请输入需要添加的bridge备的名称")
-            bridgename = input()
+            print("netns")
+        elif type == "bridge":
+            bridgename = name
             DeviceNameList.append(bridgename)
             DeviceList.append(Bridge(bridgename))
-        elif type == 'vxlan':
-            print("请输入需要添加的vxlan设备的名称")
-            vxlanname = input()
-            print("请输入需要添加的vxlan设备的多播ip")
-            grouip = input()
-            print("请输入需要添加的vxlan设备的本地ip")
-            localip = input()
-            print("请输入需要添加的vxlan设备的宿主机名称")
-            eth0 = input()
+            print("br")
+        elif type == "vxlan":
+            vxlanname = name
+            grouip = json_data.get("name2")
+            localip = json_data.get("name3")
+            eth0 = json_data.get("name4")
             DeviceNameList.append(vxlanname)
             DeviceList.append(Vxlan(vxlanname, grouip, localip, eth0))
+            print("vxlan")
+        print(DeviceNameList)
+        print(DeviceList)
         return "ip"
 
 @app.route("/server/connect", methods=['GET', 'POST'])
 def connect():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name1=json_data.get("name1")
         name2=json_data.get("name2")
-        print(name1+" "+name2)
+        Device1 = name1
+        Device2 = name2
+        index1 = DeviceNameList.index(Device1)
+        index2 = DeviceNameList.index(Device2)
+        if DeviceList[index1].gettype() == "netns":
+            os.system("sh shell/connect/VethToNetns.sh " + Device2 + " " + Device1)
+            DeviceList[index1].connect(Device2)
+            DeviceList[index2].connect(Device1)
+        if DeviceList[index2].gettype() == "netns":
+            os.system("sh shell/connect/VethToNetns.sh " + Device1 + " " + Device2)
+            DeviceList[index1].connect(Device2)
+            DeviceList[index2].connect(Device1)
+        if DeviceList[index1].gettype() == "bridge":
+            os.system("sh shell/connect/MasterBr.sh " + Device2 + " " + Device1)
+            DeviceList[index1].connectlist(Device2)
+            DeviceList[index2].connect(Device1)
+        if DeviceList[index2].gettype() == "bridge":
+            os.system("sh shell/connect/MasterBr.sh " + Device1 + " " + Device2)
+            DeviceList[index1].connect(Device2)
+            DeviceList[index2].connectlist(Device1)
+        print(DeviceNameList)
+        print(DeviceList)
         return "ip"
-#
+
+
 @app.route("/server/addip", methods=['GET', 'POST'])
 def addip():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name=json_data.get("name")
-        ip=json_data.get("ip")
-        print(name+" "+ip)
+        Deviceip=json_data.get("ip")
+        Device = name
+        ip = Deviceip
+        index = DeviceNameList.index(Device)
+        if DeviceList[index].gettype() != "veth":
+            DeviceList[index].addip(ip)
+        elif DeviceList[index].gettype() == "veth":
+            ConnectedDevice = DeviceList[index].getconnectdevice()
+            if ConnectedDevice == "":
+                DeviceList[index].addipVeth(ip)
+            else:
+                indexConnected = DeviceNameList.index(ConnectedDevice)
+                ConnectedType = DeviceList[indexConnected].gettype()
+                if ConnectedType == "netns":
+                    DeviceList[index].addipVethNetns(ip, ConnectedDevice)
+                else:
+                    DeviceList[index].addipVeth(ip)
         return "ip"
 
 @app.route("/server/setup", methods=['GET', 'POST'])
 def setup():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name=json_data.get("name")
-        print(name)
+        Device = name
+        index = DeviceNameList.index(Device)
+        if DeviceList[index].gettype() != "veth":
+            DeviceList[index].setup()
+        elif DeviceList[index].gettype() == "veth":
+            ConnectedDevice = DeviceList[index].getconnectdevice()
+            if ConnectedDevice == "":
+                DeviceList[index].setup()
+            else:
+                indexConnected = DeviceNameList.index(ConnectedDevice)
+                ConnectedType = DeviceList[indexConnected].gettype()
+                if ConnectedType == "netns":
+                    DeviceList[index].setupVethNetns(ConnectedDevice)
+                else:
+                    DeviceList[index].setupVeth()
         return "ip"
 
 @app.route("/server/delete", methods=['GET', 'POST'])
 def delete():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name=json_data.get("name")
-        print(name)
+        Device = name
+        index = DeviceNameList.index(Device)
+        if DeviceList[index].gettype() == "veth":
+            ConnectedDevice = DeviceList[index].getconnectdevice()
+            if ConnectedDevice == "":
+                DeviceList[index].delete()
+                deleteVeth(Device, index)
+            else:
+                indexConnected = DeviceNameList.index(ConnectedDevice)
+                ConnectedType = DeviceList[indexConnected].gettype()
+                if ConnectedType == "netns":
+                    DeviceList[index].deleteVethNetns(ConnectedDevice)
+                    deleteVeth(Device, index)
+                else:
+                    DeviceList[index].delete()
+                    deleteVeth(Device, index)
+        elif DeviceList[index].gettype() == "netns":  # 似乎num2等于2，3，4的情况可以合并
+            DeviceList[index].delete()
+            del DeviceList[index]
+            del DeviceNameList[index]
+        elif DeviceList[index].gettype() == "bridge":
+            DeviceList[index].delete()
+            del DeviceList[index]
+            del DeviceNameList[index]
+        elif DeviceList[index].gettype() == "vxlan":
+            DeviceList[index].delete()
+            del DeviceList[index]
+            del DeviceNameList[index]
+        print(DeviceNameList)
+        print(DeviceList)
         return "ip"
 
 @app.route("/server/openforward", methods=['GET', 'POST'])
 def openforward():
     if request.method == 'POST':
-        print("open")
+        os.system("sudo	sysctl net.ipv4.conf.all.forwarding=1")
+        os.system("sudo iptables -P FORWARD ACCEPT")
+        print("openforward")
         return "ip"
 
 @app.route("/server/setroute", methods=['GET', 'POST'])
 def setroute():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name=json_data.get("name")
-        print(name)
+        Netnsname=name #配置和netns相连的veth，以及和veth相连的bridge
+        indexNetns=DeviceNameList.index(Netnsname)
+        Vethname=DeviceList[indexNetns].getconnectdevice()
+        indexVeth=DeviceNameList.index(Vethname)
+        VethPeerName=DeviceList[indexVeth].getpeername()
+        indexPeerName=DeviceNameList.index(VethPeerName)
+        Bridgename=DeviceList[indexPeerName].getconnectdevice()
+        indexBr=DeviceNameList.index(Bridgename)
+        ipBr=DeviceList[indexBr].getip()
+        os.system("sh shell/net/gw.sh "+Netnsname+" "+ipBr+" "+Vethname)
         return "ip"
 
 @app.route("/server/dnat", methods=['GET', 'POST'])
 def dnat():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         bridge=json_data.get("name")
         ip=json_data.get("ip")
-        print(bridge+" "+ip)
+        Bridgename=bridge
+        # index=DeviceNameList.index(Bridgename)
+        os.system("sh shell/net/DNAT.sh "+ip+" "+Bridgename)
+        print("已配置完成,内部虚拟网络访问外网时,将namespace请求中的IP换成外部网络认识的ip,进而达到正常访问外部网络的效果。")
         return "ip"
 
 @app.route("/server/snat", methods=['GET', 'POST'])
 def snat():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         bridge=json_data.get("name1")
         netns=json_data.get("name2")
-        print(bridge+" "+netns)
+        Bridgename = bridge
+        Netnsname = netns
+        indexNetns = DeviceNameList.index(Netnsname)
+        Vethname = DeviceList[indexNetns].getconnectdevice()
+        indexVeth = DeviceNameList.index(Vethname)
+        ipVeth = DeviceList[indexVeth].getip()
+        os.system("sh shell/net/SNAT.sh " + Bridgename + " " + ipVeth)
+        print("已配置完成,外部网络若访问tcp的8088端口,则就转发到" + Bridgename + "的80端口。" + "地址为" + ipVeth + ":80")
         return "ip"
 
 @app.route("/server/openserver", methods=['GET', 'POST'])
 def openserver():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         name=json_data.get("name")
-        print(name)
+        Netnsname = name
+        os.system("sh shell/net/server.sh " + Netnsname)
         return "ip"
 
 @app.route("/server/ping", methods=['GET', 'POST'])
 def ping():
     if request.method == 'POST':
-        print(request.get_data())
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
-        print(json_data)
         cmd=json_data.get("name")
-        print(cmd)
+        cmd = input()
+        os.system(cmd)
         return "ip"
 
 #提醒kfz设置server/route
@@ -174,4 +271,4 @@ if __name__ == '__main__':
     DeviceList=[]
     DeviceNameList=[]
     VethFrontList=[]
-    app.run()
+    app.run(host='0.0.0.0')
