@@ -159,7 +159,7 @@
     }
     createDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://localhost:5000//server/create");
+      xhr.open("POST","http://47.110.233.28:5000//server/create");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)}));
             console.log({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)});
@@ -176,7 +176,7 @@
 
     connectDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/connect");
+      xhr.open("POST","http://47.110.233.28:5000/server/connect");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name1:inputConnect1.value,name2:inputConnect2.value}));
             console.log({name1:inputConnect1.value,name2:inputConnect2.value});
@@ -193,7 +193,7 @@
 
     addIp.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/addip");
+      xhr.open("POST","http://47.110.233.28:5000/server/addip");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputAddIp.value,ip:inputIp.value}));
             console.log({name:inputAddIp.value,ip:inputIp.value});
@@ -210,7 +210,7 @@
 
     setUpDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/setup");
+      xhr.open("POST","http://47.110.233.28:5000/server/setup");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputSetUp.value}));
             console.log({name:inputSetUp.value});
@@ -227,7 +227,7 @@
 
     deleteDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/delete");
+      xhr.open("POST","http://47.110.233.28:5000/server/delete");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputDelete.value}));
             console.log({name:inputDelete.value});
@@ -244,7 +244,7 @@
 
     forwardAccept.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/openforward");
+      xhr.open("POST","http://47.110.233.28:5000/server/openforward");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send("ok");
             console.log("ok");
@@ -261,7 +261,7 @@
 
     setRoute.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/setroute");
+      xhr.open("POST","http://47.110.233.28:5000/server/setroute");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputRoute.value}));
             console.log(JSON.stringify({name:inputRoute.value}));
@@ -278,7 +278,7 @@
 
     setDNAT.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/dnat");
+      xhr.open("POST","http://47.110.233.28:5000/server/dnat");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputDNATbr.value,ip:inputLAN.value}));
             console.log({name:inputDNATbr.value,ip:inputLAN.value});
@@ -295,7 +295,7 @@
 
     setSNAT.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/snat");
+      xhr.open("POST","http://47.110.233.28:5000/server/snat");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name1:inputSNATbr.value,name2:inputSNATnetns.value}));
             console.log({name1:inputSNATbr.value,name2:inputSNATnetns.value});
@@ -312,7 +312,7 @@
 
     openServer.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/openserver");
+      xhr.open("POST","http://47.110.233.28:5000/server/openserver");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputServernetns.value}));
             console.log(JSON.stringify({name:inputServernetns.value}));
@@ -329,7 +329,7 @@
 
     ping.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://127.0.0.1:5000/server/ping");
+      xhr.open("POST","http://47.110.233.28:5000/server/ping");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputPing.value}));
             console.log(JSON.stringify({name:inputPing.value}));
