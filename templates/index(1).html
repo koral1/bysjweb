@@ -159,7 +159,7 @@
     }
     createDevice.onclick=()=>{
       const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://47.110.233.28:5000//server/create");
+      xhr.open("POST","http://localhost:5000//server/create");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)}));
             console.log({type:selectNode.value,name1:inputCreate1.value,name2:inputCreate2.value,name3:inputCreate3.value,name4:inputCreate4.value,location:JSON.parse(inputLocation.value)});
