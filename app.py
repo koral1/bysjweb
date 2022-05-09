@@ -9,6 +9,7 @@ from entity.Netns import Netns
 from entity.Veth import Veth
 from entity.Vxlan import Vxlan
 
+
 app = Flask(__name__, static_url_path="/")
 
 def deleteVeth(Device, index):
@@ -27,6 +28,7 @@ def deleteVeth(Device, index):
 
 @app.route("/server/create", methods=['GET', 'POST'])
 def create():
+    DeviceAddressList = []
     if request.method == 'POST':
         data=request.get_data()
         json_data =json.loads(data.decode("utf-8"))
@@ -42,16 +44,27 @@ def create():
             DeviceList.append(Veth(vethpeername, vethname))
             indexVeth = DeviceNameList.index(vethname)
             DeviceList[indexVeth].create()
+            index = indexVeth
+            index2 = index + 1
+            DeviceAddressList.append(hex(id(DeviceList[index])))
+            DeviceAddressList.append(hex(id(DeviceList[index2])))
+            json_str = json.dumps(DeviceAddressList)
             print("veth")
         elif type == "netns":
             netnsname = name
             DeviceNameList.append(netnsname)
             DeviceList.append(Netns(netnsname))
+            index= DeviceNameList.index(netnsname)
+            DeviceAddressList.append(hex(id(DeviceList[index])))
+            json_str = json.dumps(DeviceAddressList)
             print("netns")
         elif type == "bridge":
             bridgename = name
             DeviceNameList.append(bridgename)
             DeviceList.append(Bridge(bridgename))
+            index=DeviceNameList.index(bridgename)
+            DeviceAddressList.append(hex(id(DeviceList[index])))
+            json_str = json.dumps(DeviceAddressList)
             print("br")
         elif type == "vxlan":
             vxlanname = name
@@ -60,10 +73,14 @@ def create():
             eth0 = json_data.get("name4")
             DeviceNameList.append(vxlanname)
             DeviceList.append(Vxlan(vxlanname, grouip, localip, eth0))
+            index= DeviceNameList.index(vxlanname)
+            DeviceAddressList.append(hex(id(DeviceList[index])))
+            json_str = json.dumps(DeviceAddressList)
             print("vxlan")
         print(DeviceNameList)
         print(DeviceList)
-        return "ip"
+        print(DeviceList[index])
+        return json_str #不知道这里传的是网络设备还是字符串，，，用了join方法，最后返回的应该是字符串了
 
 @app.route("/server/connect", methods=['GET', 'POST'])
 def connect():

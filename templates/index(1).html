@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="#" />
+    <link rel="shortcut icon" href="#"/>
     <title>go</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/gojs/2.2.7/go-debug.js"></script>
     <style>
@@ -75,8 +75,8 @@
         <br/>
         <input type="text" placeholder="请输入netns名" id="inputServernetns">
         <button id="openServer">启动一个server</button>
-        <input type="text" id="inputPing">
-        <button id="ping">ping</button>
+        <!-- <input type="text" id="inputPing">
+        <button id="ping">ping</button> -->
 
     </div>
     <div id="kongzhi">
@@ -183,10 +183,10 @@
             {
               if(nodeDataArray[i].key===inputConnect1.value&&nodeDataArray[i].type==="veth")
               b1=nodeDataArray[i];
-              else if(nodeDataArray[i].key===inputConnect2.value&&nodeDataArray[i].type==="veth")
-              b1=nodeDataArray[i];
               else if(nodeDataArray[i].key===inputConnect1.value&&nodeDataArray[i].type==="netns")
               b2=nodeDataArray[i];
+              else if(nodeDataArray[i].key===inputConnect2.value&&nodeDataArray[i].type==="veth")
+              b1=nodeDataArray[i];
               else if(nodeDataArray[i].key===inputConnect2.value&&nodeDataArray[i].type==="netns")
               b2=nodeDataArray[i];
             }
@@ -205,7 +205,7 @@
       for(let i=0;i<nodeDataArray.length;i++)
       {
         if(nodeDataArray[i].key===inputAddIp.value)
-        nodeDataArray[i].text=nodeDataArray[i].key+"\nip:"+inputIp.value;
+        nodeDataArray[i].text=nodeDataArray[i].key+"\n地址:"+nodeDataArray[i].address+"\nip:"+inputIp.value;
       }
       load();
     }
@@ -312,7 +312,7 @@
             if(selectNode.value==="vethpair")
                         {
                           nodeDataArrayPush({key:inputCreate1.value,text:inputCreate1.value,type:"veth",loc:inputLocation.value,pair:inputCreate2.value})
-                          locationMove(100,0);
+                          locationMove(150,0);
                           nodeDataArrayPush({key:inputCreate2.value,text:inputCreate2.value,type:"veth",loc:inputLocation.value,pair:inputCreate1.value})
                           linkDataArray.push({from:inputCreate1.value,to:inputCreate2.value})
                         }
@@ -322,12 +322,33 @@
                         }
                         locationMove(10,10);
                         load();
+                        inputCreate1.value="";
+                        inputCreate2.value="";
+                        inputCreate3.value="";
+                        inputCreate4.value="";
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {
                     if(xhr.status>=200&&xhr.status<300)
                     {
+                       const data=JSON.parse(xhr.response);
+                       if(selectNode.value==="vethpair")
+                       {
+                         const len=nodeDataArray.length;
+                         nodeDataArray[len-2].address=data[0];
+                         nodeDataArray[len-1].address=data[1];
+                         nodeDataArray[len-2].text=nodeDataArray[len-2].text+"\n地址:"+nodeDataArray[len-2].address;
+                         nodeDataArray[len-1].text=nodeDataArray[len-1].text+"\n地址:"+nodeDataArray[len-1].address;
+                         console.log(nodeDataArray[len-2].text)
 
+                       }
+                       else
+                       {
+                        const len=nodeDataArray.length;
+                        nodeDataArray[len-1].address=data[0];
+                        nodeDataArray[len-1].text=nodeDataArray[len-1].text+"\n地址:"+nodeDataArray[len-1].address;
+                       }
+                       load();
                        console.log("成功创建设备！")
                     }
                 }
@@ -349,6 +370,8 @@
                     }
                 }
             }
+            inputConnect1.value="";
+            inputConnect2.value="";
     }
 
     addIp.onclick=()=>{
@@ -367,6 +390,8 @@
                     }
                 }
             }
+            inputAddIp.value="";
+            inputIp.value="";
     }
 
     setUpDevice.onclick=()=>{
@@ -384,6 +409,7 @@
                     }
                 }
             }
+            inputSetUp.value="";
     }
 
     deleteDevice.onclick=()=>{
@@ -401,6 +427,7 @@
                     }
                 }
             }
+            inputDelete.value="";
     }
 
     forwardAccept.onclick=()=>{
@@ -408,7 +435,6 @@
       xhr.open("POST","http://47.110.233.28:5000/server/openforward");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send("");
-            console.log("ok");
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {
@@ -425,7 +451,7 @@
       xhr.open("POST","http://47.110.233.28:5000/server/setroute");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputRoute.value}));
-            console.log(JSON.stringify({name:inputRoute.value}));
+
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {
@@ -435,6 +461,7 @@
                     }
                 }
             }
+            inputRoute.value="";
     }
 
     setDNAT.onclick=()=>{
@@ -442,7 +469,7 @@
       xhr.open("POST","http://47.110.233.28:5000/server/dnat");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name:inputDNATbr.value,ip:inputLAN.value}));
-            console.log({name:inputDNATbr.value,ip:inputLAN.value});
+
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {
@@ -452,6 +479,8 @@
                     }
                 }
             }
+            inputDNATbr.value="";
+            inputLAN.value="";
     }
 
     setSNAT.onclick=()=>{
@@ -459,7 +488,6 @@
       xhr.open("POST","http://47.110.233.28:5000/server/snat");
             xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
             xhr.send(JSON.stringify({name1:inputSNATbr.value,name2:inputSNATnetns.value}));
-            console.log({name1:inputSNATbr.value,name2:inputSNATnetns.value});
             xhr.onreadystatechange=()=>{
                 if(xhr.readyState===4)
                 {
@@ -469,6 +497,8 @@
                     }
                 }
             }
+            inputSNATbr.value="";
+            inputSNATnetns.value="";
     }
 
     openServer.onclick=()=>{
@@ -486,24 +516,26 @@
                     }
                 }
             }
+            inputServernetns.value="";
     }
 
-    ping.onclick=()=>{
-      const xhr=new XMLHttpRequest();
-      xhr.open("POST","http://47.110.233.28:5000/server/ping");
-            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
-            xhr.send(JSON.stringify({name:inputPing.value}));
-            console.log(JSON.stringify({name:inputPing.value}));
-            xhr.onreadystatechange=()=>{
-                if(xhr.readyState===4)
-                {
-                    if(xhr.status>=200&&xhr.status<300)
-                    {
-                       console.log("ping成功了！")
-                    }
-                }
-            }
-    }
+    // ping.onclick=()=>{
+    //   const xhr=new XMLHttpRequest();
+    //   xhr.open("POST","http://47.110.233.28:5000/server/ping");
+    //         xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+    //         xhr.send(JSON.stringify({name:inputPing.value}));
+    //         console.log(JSON.stringify({name:inputPing.value}));
+    //         xhr.onreadystatechange=()=>{
+    //             if(xhr.readyState===4)
+    //             {
+    //                 if(xhr.status>=200&&xhr.status<300)
+    //                 {
+    //                    console.log("ping成功了！")
+    //                 }
+    //             }
+    //         }
+    //         inputPing.value="";
+    // }
 
     saveBtn.onclick=saveModel;
     loadBtn.onclick=load;
