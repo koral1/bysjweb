@@ -14,3 +14,7 @@ sudo apt install python3-pip
 sudo pip3 install flask
 
 4.要先创建net1，再创建其他的，不然如果先创建veth，再创建net1,那么前端的veth图片会被net1盖住
+
+5.删除veth要删除不在netns里的，不然可能找不到veth1
+
+6.如果前端页面的控制台上有红色的issues标红，可以点击hide issues like that。已知的飘红的issues是希望可以配置cookie的环境，实现跨域访问。
